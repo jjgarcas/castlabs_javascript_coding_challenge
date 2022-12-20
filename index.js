@@ -12,7 +12,9 @@ const parseBoxes = arrayBuffer => {
     if (type === 'moof' || type === 'traf') {
       parseBoxes(arrayBuffer.slice(index + 8, index + size));
     } else if (type === 'mdat') {
-      //show xml content
+      const decoder = new TextDecoder();
+      const content = decoder.decode(arrayBuffer.slice(index + 8, index + size));
+      console.log(`Content of mdat box is: ${content}`);
     }
     index += size;
   }
