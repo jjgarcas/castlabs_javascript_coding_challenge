@@ -2,6 +2,19 @@ const getBoxSize = sizeBytes => sizeBytes.reduce((size, currentValue) => 255 * s
 
 const getBoxType = typeBytes => typeBytes.reduce((type, currentValue) => type + String.fromCharCode(currentValue), '');
 
+const parseXml = content => {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(content, 'text/xml');
+  const images = xml.getElementsByTagName('smpte:image');
+  for (const image of images) {
+    const imageType = image.getAttribute('imagetype').toLowerCase();
+    const encoding = image.getAttribute('encoding').toLowerCase();
+    const imageNode = document.createElement('img');
+    imageNode.setAttribute('src', `data:image/${imageType};${encoding},${image.childNodes[0].nodeValue}`);
+    document.body.appendChild(imageNode);
+  }
+};
+
 const parseBoxes = arrayBuffer => {
   let index = 0;
   const arrayLength = arrayBuffer.byteLength;
@@ -15,6 +28,7 @@ const parseBoxes = arrayBuffer => {
       const decoder = new TextDecoder();
       const content = decoder.decode(arrayBuffer.slice(index + 8, index + size));
       console.log(`Content of mdat box is: ${content}`);
+      parseXml(content);
     }
     index += size;
   }
